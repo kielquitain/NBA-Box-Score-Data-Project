@@ -3,7 +3,7 @@ End to End Data Science project that utilizes web-scraping that gets daily NBA B
 
 ## How to Run
 
-1. Pull Repository
+1. Clone Repository
 2. Put Service Account json on directory
 3. Activate Viretual Environment `venv\Scripts\Activate`
 4. python box_score_scraper.py
