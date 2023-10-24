@@ -85,7 +85,8 @@ def main():
             scrape_box_score(box_score_url=url)
         )
         time.sleep(randint(10, 15))
-
+        print(f'Scrape Done with URL: {url}')
+    
     final_df = pd.concat(all_dfs)
     gd.set_with_dataframe(ws, final_df)
     print('Sheets Updated!')
