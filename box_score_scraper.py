@@ -67,9 +67,8 @@ def main():
     month = datetime.today().month
     year = datetime.today().year
     base_url = f'https://www.basketball-reference.com/boxscores/?month={month}&day={day}&year={year}'
-
     print(base_url)
-    """Functions here"""
+    
     gc = gspread.service_account('service_account.json')
     ws = gc.open("NBA Box Score Database").worksheet("DB")
     
