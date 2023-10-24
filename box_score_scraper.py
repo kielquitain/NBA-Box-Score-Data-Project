@@ -1,21 +1,15 @@
 """NBA SCRAPER"""
-
 import pandas as pd
 from bs4 import BeautifulSoup
 import requests
+import io
 from random import randint
-import lxml
 import time
-import logging
 import gspread
-from gspread_dataframe import set_with_dataframe
 import gspread_dataframe as gd
-
-
-TEAM1_INDEX = 0
-TEAM2_INDEX = 8
-URL = f'https://www.basketball-reference.com/boxscores/?month={3}&day={10}&year={2023}'
-SHEET_URL = 'https://docs.google.com/spreadsheets/d/1_6GndTYwsc3Xol99RK4HYc8A0x76tbTSUPj-117Uum4/edit#gid=0'
+from datetime import datetime
+import re
+import sys
 
 
 def get_box_scores(daily_url):
@@ -34,61 +28,69 @@ def scrape_box_score(box_score_url):
     """Scrape the box scores"""
     soup = soupify(box_score_url)
     title = soup.find('title').text
-    team1_name = title.split(', ')[0].split('vs')[0].strip()
+    tables = soup.find_all('table', {'id': re.compile(r'box-([A-Z]{3})-game-basic')})
+    tables_str = io.StringIO(str(tables))
+    tables = pd.read_html(tables_str, header=1, flavor='bs4')
+
     # Team 1
-    team1_table = pd.read_html(box_score_url, header=1)[TEAM1_INDEX]
+    team1_table = tables[0]
+    team1_name = title.split(', ')[0].split('vs')[0].strip()
     team1_table.rename(columns={'Starters': 'Players'}, inplace=True)
-    team1_df = team1_table.drop(team1_table[team1_table['Players'] == 'Reserves'].index)
-    team1_df.rename({'+/-': 'Plus/Minus'}, inplace=True)
+    team1_df = team1_table.drop(team1_table[team1_table['MP'] == 'MP'].index)
+    team1_df = team1_df.drop(team1_df[team1_df['Players'] == 'Team Totals'].index)
+    team1_df.columns.values[20] = "Plus/Minus"
     team1_df['Team'] = team1_name
+    team1_df['Game Date'] = datetime.now().strftime('%Y-%m-%d')
+
     # Team 2
-    team2_table = pd.read_html(box_score_url, header=1)[TEAM2_INDEX]
-    team2_name = title.split(', ')[0].split('vs')[0].strip()
+    team2_table = tables[1]
+    team2_name = title.split(', ')[0].split('vs')[1].strip()
     team2_table.rename(columns={'Starters': 'Players'}, inplace=True)
-    team2_df = team2_table.drop(team1_table[team1_table['Players'] == 'Reserves'].index)
-    team2_df.rename({'+/-': 'Plus/Minus'}, inplace=True)
+    team2_df = team2_table.drop(team2_table[team2_table['MP'] == 'MP'].index)
+    team2_df = team2_df.drop(team2_df[team2_df['Players'] == 'Team Totals'].index)
+    team2_df.columns.values[20] = "Plus/Minus"
     team2_df['Team'] = team2_name
-    
+    team2_df['Game Date'] = datetime.now().strftime('%Y-%m-%d')
     combined_df = pd.concat([team1_df, team2_df])
-    print(combined_df)
     return combined_df
 
 
 def soupify(url):
+    "Get soup object from html"
     res = requests.get(url)
-    # with open('team1.html', 'w', encoding="utf-8") as html_file: 
-    #     html_file.write(res.text)
-    #     html_file.close()
     soup = BeautifulSoup(res.text, 'html.parser')
     return soup
 
 def main():
     """Functions here"""
+    day = datetime.today().day
+    month = datetime.today().month
+    year = datetime.today().year
+    base_url = f'https://www.basketball-reference.com/boxscores/?month={month}&day={day}&year={year}'
+
+    print(base_url)
+    """Functions here"""
     gc = gspread.service_account('service_account.json')
     ws = gc.open("NBA Box Score Database").worksheet("DB")
+    
+    box_score_urls = get_box_scores(daily_url=base_url)
 
+    if len(box_score_urls) < 1:
+        print('No Box Score Available')
+        sys.exit()
 
-    box_score_urls = get_box_scores(daily_url=URL)
     all_dfs = []
-    for url in box_score_urls[2:3]:
-        print('URL: ', url)
+
+    for url in box_score_urls:
         all_dfs.append(
             scrape_box_score(box_score_url=url)
         )
         time.sleep(randint(10, 15))
 
     final_df = pd.concat(all_dfs)
-    existing_df = gd.get_as_dataframe(worksheet=ws, usecols=['Players', 'MP', 'FG', 'FGA',
-                                            'FG%','3P','3PA','3P%','FT',
-                                            'FTA','FT%','ORB','DRB','TRB',
-                                            'AST','STL','BLK','TOV','PF',
-                                            'PTS','Plus/Minus','Team'])
-    updated_df = pd.concat([existing_df, final_df])
-    updated_df = updated_df.dropna()
-    print(updated_df)
-    gd.set_with_dataframe(ws, updated_df)
+    gd.set_with_dataframe(ws, final_df)
+    print('Sheets Updated!')
 
-    # set_with_dataframe(worksheet=ws, dataframe=df, include_index=False,
-    #                     include_column_header=False, resize=True)
+
 if __name__ == '__main__':
     main()
