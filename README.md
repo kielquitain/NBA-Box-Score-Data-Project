@@ -8,5 +8,5 @@ End to End Data Science project that utilizes web-scraping that gets daily NBA B
 3. Activate Viretual Environment `venv\Scripts\Activate`
 4. python box_score_scraper.py
 
-# NBA Box Score Data Sheets
+## NBA Box Score Data Sheets
 `https://docs.google.com/spreadsheets/d/1_6GndTYwsc3Xol99RK4HYc8A0x76tbTSUPj-117Uum4/edit#gid=1479659453`
