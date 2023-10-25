@@ -1,6 +1,9 @@
 name: run main.py
 
 on:
+  workflow_dispatch:
+
+on:
   schedule:
     - cron: '*/2 * * * *' # Every 5 pm
 
@@ -24,4 +27,3 @@ jobs:
           
       - name: execute py script # run main.py
         run: python main.py
-          
