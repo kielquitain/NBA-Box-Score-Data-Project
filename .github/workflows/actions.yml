@@ -2,7 +2,7 @@ name: run box_score_scraper.py
 
 on:
   schedule:
-    - cron: '0 17 * * *' # Every 5 pm
+    - cron: '32 0 * * *' # Every 5 pm
 
 jobs:
   build:
