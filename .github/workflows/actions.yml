@@ -1,4 +1,4 @@
-name: run box_score_scraper.py
+name: run main.py
 
 on:
   schedule:
@@ -23,5 +23,5 @@ jobs:
           pip install -r requirements.txt
           
       - name: execute py script # run main.py
-        run: python box_score_scraper.py
+        run: python main.py
           
