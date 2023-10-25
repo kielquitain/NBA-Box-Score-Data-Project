@@ -63,7 +63,7 @@ def soupify(url):
 
 def main():
     """Functions here"""
-    day = datetime.today().day
+    day = datetime.today().day - datetime.timedelta(days = 1)
     month = datetime.today().month
     year = datetime.today().year
     base_url = f'https://www.basketball-reference.com/boxscores/?month={month}&day={day}&year={year}'
