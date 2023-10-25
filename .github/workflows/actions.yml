@@ -1,4 +1,4 @@
-name: run main.py
+name: NBA Scrape Workflow
 
 on:
   workflow_dispatch:
