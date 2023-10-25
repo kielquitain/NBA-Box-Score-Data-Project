@@ -7,7 +7,7 @@ from random import randint
 import time
 import gspread
 import gspread_dataframe as gd
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 import sys
 
@@ -40,7 +40,7 @@ def scrape_box_score(box_score_url):
     team1_df = team1_df.drop(team1_df[team1_df['Players'] == 'Team Totals'].index)
     team1_df.columns.values[20] = "Plus/Minus"
     team1_df['Team'] = team1_name
-    team1_df['Game Date'] = datetime.now().strftime('%Y-%m-%d')
+    team1_df['Game Date'] = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
 
     # Team 2
     team2_table = tables[1]
@@ -50,7 +50,7 @@ def scrape_box_score(box_score_url):
     team2_df = team2_df.drop(team2_df[team2_df['Players'] == 'Team Totals'].index)
     team2_df.columns.values[20] = "Plus/Minus"
     team2_df['Team'] = team2_name
-    team2_df['Game Date'] = datetime.now().strftime('%Y-%m-%d')
+    team2_df['Game Date'] = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
     combined_df = pd.concat([team1_df, team2_df])
     return combined_df
 
@@ -63,10 +63,10 @@ def soupify(url):
 
 def main():
     """Functions here"""
-    day = datetime.today().day - datetime.timedelta(days = 1)
+    day = (datetime.today() - timedelta(days=1)).day
     month = datetime.today().month
     year = datetime.today().year
-    base_url = f'https://www.basketball-reference.com/boxscores/?month={month}&day={day}&year={year}'
+    base_url = f'https://www.basketball-reference.com/boxscores/?month={10}&day={24}&year={year}'
     print(base_url)
     
     gc = gspread.service_account('service_account.json')
