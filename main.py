@@ -66,7 +66,7 @@ def main():
     day = (datetime.today() - timedelta(days=1)).day
     month = datetime.today().month
     year = datetime.today().year
-    base_url = f'https://www.basketball-reference.com/boxscores/?month={10}&day={24}&year={year}'
+    base_url = f'https://www.basketball-reference.com/boxscores/?month={month}&day={day}&year={year}'
     print(base_url)
     
     gc = gspread.service_account('service_account.json')
