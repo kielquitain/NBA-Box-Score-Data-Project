@@ -3,7 +3,7 @@ name: NBA Scrape Workflow
 on:
   workflow_dispatch:
   schedule:
-     - cron: "13 17 * * *"
+     - cron: "14 19 * * *"
 
 jobs:
   build:
