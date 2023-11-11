@@ -87,9 +87,9 @@ def main():
         time.sleep(randint(10, 15))
         print(f'Scrape Done with URL: {url}')
     
-    final_df = pd.concat(all_dfs)
-    gd.set_with_dataframe(ws, final_df)
-    print('Sheets Updated!')
+    # final_df = pd.concat(all_dfs)
+    # gd.set_with_dataframe(ws, final_df)
+    # print('Sheets Updated!')
 
 
 if __name__ == '__main__':
