@@ -40,8 +40,6 @@ def scrape_box_score(box_score_url):
     team1_df = team1_df.drop(team1_df[team1_df['Players'] == 'Team Totals'].index)
     team1_df.columns.values[20] = "Plus/Minus"
     team1_df['Team'] = team1_name
-    team1_df['Game Date'] = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
-
     # Team 2
     team2_table = tables[1]
     team2_name = title.split(', ')[0].split('vs')[1].strip()
@@ -50,8 +48,9 @@ def scrape_box_score(box_score_url):
     team2_df = team2_df.drop(team2_df[team2_df['Players'] == 'Team Totals'].index)
     team2_df.columns.values[20] = "Plus/Minus"
     team2_df['Team'] = team2_name
-    team2_df['Game Date'] = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+    
     combined_df = pd.concat([team1_df, team2_df])
+    combined_df['Game Date'] = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
     return combined_df
 
 
@@ -67,10 +66,10 @@ def main():
     month = datetime.today().month
     year = datetime.today().year
     base_url = f'https://www.basketball-reference.com/boxscores/?month={month}&day={day}&year={year}'
-    print(base_url)
+    print('Base URL: ', base_url)
     
     gc = gspread.service_account('service_account.json')
-    ws = gc.open("NBA Box Score Database").worksheet("DB")
+    ws = gc.open("NBA Box Score Database")
     
     box_score_urls = get_box_scores(daily_url=base_url)
 
@@ -86,11 +85,15 @@ def main():
         )
         time.sleep(randint(10, 15))
         print(f'Scrape Done with URL: {url}')
-    
-    # final_df = pd.concat(all_dfs)
-    # gd.set_with_dataframe(ws, final_df)
-    # print('Sheets Updated!')
 
+    final_df = pd.concat(all_dfs)
+    final_df.fillna(0, inplace=True)
+    for _, val in final_df.iterrows():
+        values = val.values.tolist()
+        print('values: ', values)
+        print('--------------')
+        ws.values_append("DB-Test", {'valueInputOption': 'USER_ENTERED'}, {'values': [values]})
+        time.sleep(randint(1, 2))
 
 if __name__ == '__main__':
     main()
