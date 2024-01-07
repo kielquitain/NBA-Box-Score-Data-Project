@@ -65,7 +65,7 @@ def main():
     day = (datetime.today() - timedelta(days=1)).day
     month = datetime.today().month
     year = datetime.today().year
-    base_url = f'https://www.basketball-reference.com/boxscores/?month={month}&day={day}&year={year}'
+    base_url = f'https://www.basketball-reference.com/boxscores/?month={month}&day={6}&year={year}'
     print('Base URL: ', base_url)
     
     gc = gspread.service_account('service_account.json')
@@ -79,7 +79,7 @@ def main():
 
     all_dfs = []
 
-    for url in box_score_urls:
+    for url in box_score_urls[:1]:
         all_dfs.append(
             scrape_box_score(box_score_url=url)
         )
@@ -89,11 +89,20 @@ def main():
     final_df = pd.concat(all_dfs)
     final_df.fillna(0, inplace=True)
     for _, val in final_df.iterrows():
-        values = val.values.tolist()
-        print('values: ', values)
-        print('--------------')
-        ws.values_append("DB-Test", {'valueInputOption': 'USER_ENTERED'}, {'values': [values]})
-        time.sleep(randint(1, 2))
+        tries = 0
+        while tries <= 5:
+            try:
+                values = val.values.tolist()
+                print('values: ', values)
+                print('--------------')
+                ws.values_append("DB-Test", {'valueInputOption': 'USER_ENTERED'}, {'values': [values]})
+                time.sleep(randint(1, 2))
+                break
+            except Exception as e:
+                tries+=1
+                print(f'Try: {tries}')
+                print('Error: ', e)
+                continue
 
 if __name__ == '__main__':
     main()
