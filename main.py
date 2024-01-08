@@ -79,7 +79,7 @@ def main():
 
     all_dfs = []
 
-    for url in box_score_urls[:1]:
+    for url in box_score_urls:
         all_dfs.append(
             scrape_box_score(box_score_url=url)
         )
