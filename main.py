@@ -95,7 +95,7 @@ def main():
                 values = val.values.tolist()
                 print('values: ', values)
                 print('--------------')
-                ws.values_append("DB-Test", {'valueInputOption': 'USER_ENTERED'}, {'values': [values]})
+                ws.values_append("Live-Data", {'valueInputOption': 'USER_ENTERED'}, {'values': [values]})
                 time.sleep(randint(1, 2))
                 break
             except Exception as e:
